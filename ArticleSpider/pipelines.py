@@ -1,10 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-
+# 数据处理行为，如：一般结构化的数据持久化
 
 class ArticlespiderPipeline(object):
     def process_item(self, item, spider):
