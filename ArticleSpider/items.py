@@ -6,3 +6,9 @@ class ArticlespiderItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     pass
+
+
+class ArticItem(scrapy.Item):
+    title = scrapy.Field()
+    create_data = scrapy.Field()
+    url = scrapy.Field()
