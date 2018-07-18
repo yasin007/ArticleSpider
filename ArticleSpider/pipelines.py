@@ -2,6 +2,7 @@
 import codecs
 import json
 import MySQLdb
+import MySQLdb.cursors
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy.exporters import JsonItemExporter
 from twisted.enterprise import adbapi
@@ -24,7 +25,8 @@ class JsonWithEncodingPipeline(object):
     def spider_closed(self, splider):
         self.file.close()
 
-#数据库存储
+
+# 数据库存储
 class MysqlPipeline(object):
     def __init__(self):
         self.conn = MySQLdb.connect('localhost', 'root', 'pwd@demo', 'article_spider', charset="utf8", use_unicode=True)
@@ -38,7 +40,8 @@ class MysqlPipeline(object):
         self.cursor.execute(insert_sql, (item["title"], item["url"], item["create_date"], item["fav_nums"]))
         self.conn.commit()
 
-#数据异步存储
+
+# 数据异步存储
 class MysqlTwistedPipline(object):
     def __init__(self, dbpool):
         self.dbpool = dbpool
@@ -60,19 +63,24 @@ class MysqlTwistedPipline(object):
     def process_item(self, item, spider):
         # 使用twisted将mysql插入变成异步实行
         query = self.dbpool.runInteraction(self.do_insert, item)
-        query.addErrorback(self.handle_error())
+        query.addErrback(self.handle_error(self.handle_error))
 
-    def handle_error(self, failure, item, spider):
+    def handle_error(self, failure):
+        print(failure)
 
-        def do_insert(self, cursor, item):
-            # 插入逻辑
-            insert_sql = """
-                  insert into article(title, url, create_date, fav_nums)
-                  values (%s,%s, %s, %s)
-              """
-            cursor.execute(insert_sql, (item["title"], item["url"], item["create_date"], item["fav_nums"]))
+    def do_insert(self, cursor, item):
+        # 插入逻辑
+        insert_sql = """
+                   insert into article(title, url, create_date, fav_nums, front_image_url,
+                   praise_nums, comment_nums, tags, content)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE content=VALUES(fav_nums)
+               """
+        cursor.execute(insert_sql, (
+            item["title"], item["url"], item["create_date"], item["fav_nums"], item["front_image_url"],
+            item["praise_nums"], item["comment_nums"], item["tags"], item["content"]))
 
-#导出到本地
+
+# 导出到本地
 class JsonExporterPipleline(object):
     # 调用scrapy提供的json export导出json文件
     def __init__(self):
