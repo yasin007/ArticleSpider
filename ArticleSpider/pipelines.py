@@ -72,12 +72,12 @@ class MysqlTwistedPipline(object):
         # 插入逻辑
         insert_sql = """
                    insert into article(title, url, create_date, fav_nums, front_image_url,
-                   praise_nums, comment_nums, tags, content)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE content=VALUES(fav_nums)
+                   praise_nums, comment_nums, tags, content, url_object_id)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE content=VALUES(fav_nums)
                """
         cursor.execute(insert_sql, (
             item["title"], item["url"], item["create_date"], item["fav_nums"], item["front_image_url"],
-            item["praise_nums"], item["comment_nums"], item["tags"], item["content"]))
+            item["praise_nums"], item["comment_nums"], item["tags"], item["content"], item["url_object_id"]))
 
 
 # 导出到本地

@@ -21,7 +21,7 @@ class JoboboleSpider(scrapy.Spider):
         :param response:
         :return:
         """
-        # 获取文章列表页中的url并交给scrapy并进行解析
+        # 解析列表页中的所有文章url并交给scrapy下载后并进行解析
         post_nodes = response.css("#archive .floated-thumb .post-thumb a")
         for post_node in post_nodes:
             image_url = post_node.css("img::attr(src)").extract_first("")
@@ -29,11 +29,10 @@ class JoboboleSpider(scrapy.Spider):
             yield Request(url=parse.urljoin(response.url, post_url), meta={"front_image_url": image_url},
                           callback=self.parse_detail)
 
-        # 获取下一页的url 并交给scrapy进行下载,下载完成后交给parse参数
-        next_urls = response.css(".next.page-numbers::attr(href)").extract_first("")
-        print(next_urls)
-        if next_urls:
-            yield Request(url=parse.urljoin(response.url, post_url), callback=self.parse)
+        # 提取下一页并交给scrapy进行下载
+        next_url = response.css(".next.page-numbers::attr(href)").extract_first("")
+        if next_url:
+            yield Request(url=parse.urljoin(response.url, next_url), callback=self.parse)
 
     def parse_detail(self, response):
         article_item = JobBoleArticItem()
