@@ -33,10 +33,9 @@ def convertToHtml(result,title):
 
 str =t_selector.css(".rank_content .star_name a::text").extract()
 num = t_selector.css(".star_num span::text").extract()
-
-array = []
-array = num.insert(0,'最高')
+num.insert(0,'最高')
 fh = open("32111.html", 'w')
+
 fh.write(convertToHtml([str,num],['热点名称','搜索热度']))
 fh.close()
 browser.quit()
